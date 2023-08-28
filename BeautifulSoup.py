@@ -1,4 +1,5 @@
-from bs4 imort BeautifulSoup, Tag, NavigableString
+from pathlib import Path
+from bs4 import BeautifulSoup, Tag
 import pandas as pd
 
 def obreži_html_drevo(element):
@@ -8,7 +9,7 @@ def obreži_html_drevo(element):
                 otrok.extract()
 
             else:
-                prune_tree(otrok)
+                obreži_html_drevo(otrok)
 
 
 def odstrani_vizualne_elemente(juha):
@@ -24,14 +25,16 @@ ime_produktov = []
 ocene = []
 opisi = []
 razpoložljivosti = []
-partneji = []
+partnerji = []
 cene = []
 
 združena_juha = BeautifulSoup('', 'html.parser')
 
 for i in range(1, 7):
 
-    with open(f'stran{i}.html', 'r', encoding = 'utf-8') as f:
+    with Path(f'C:/Users/luka/Desktop/Projektna UVP/analiza-podatkov/stran{i}.html').open(mode='r', encoding='utf-8') as f:
+
+    #with open(f'stran{i}.html', 'r', encoding = 'utf-8') as f:
         html_vsebina = f.read()
 
     juha = BeautifulSoup(html_vsebina, 'html.parser')
@@ -42,7 +45,8 @@ for i in range(1, 7):
     relevanten_div = izlušči_relevantne_dive(juha)
 
     if relevanten_div:
-        združena_juha.body.append(relevanten_div)
+        #združena_juha.body.append(relevanten_div)
+        združena_juha.append(relevanten_div)
 
     else:
         print(f"'category_products' div na strani{i} ni bil najden")
@@ -52,13 +56,13 @@ bloki = združena_juha.find_all("div", {"class": "pbcr"})
 for blok in bloki:
 
     id_produkta = blok.get("id", "N/A")
-    id_produktov(id_produkta)
+    id_produktov.append(id_produkta)
 
     ime_produkta = blok.find("span", {"class": "pbcr__title"})
     ime_produktov.append(ime_produkta.text.strip() if ime_produkta else "N/A" )
 
     ocena = blok.find("span", {"data-testid": "rating-count"})
-    ocene.append(ocenaa.text.strip() if ocena else "N/A")
+    ocene.append(ocena.text.strip() if ocena else "N/A")
 
     opis = blok.find("p")
     opisi.append(opis.text.strip() if opis else "N/A")
@@ -80,6 +84,6 @@ df = pd.DataFrame({
     "Ocena": ocene,
     "Opis": opisi,
     "Razpoložljivost": razpoložljivosti,
-    "Partner": partneji,
+    "Partner": partnerji,
     "Cena": cene
 })
