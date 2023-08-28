@@ -19,13 +19,13 @@ def izlušči_relevantne_dive(juha):
     return juha.find('div', {'class': 'category-products'})
 
 podatki = []
-id_produkta = []
-ime_produkta = []
-ocena = []
-opis = []
-razpoložljivost = []
-partner = []
-cena = []
+id_produktov = []
+ime_produktov = []
+ocene = []
+opisi = []
+razpoložljivosti = []
+partneji = []
+cene = []
 
 združena_juha = BeautifulSoup('', 'html.parser')
 
@@ -46,3 +46,40 @@ for i in range(1, 7):
 
     else:
         print(f"'category_products' div na strani{i} ni bil najden")
+
+bloki = združena_juha.find_all("div", {"class": "pbcr"})
+
+for blok in bloki:
+
+    id_produkta = blok.get("id", "N/A")
+    id_produktov(id_produkta)
+
+    ime_produkta = blok.find("span", {"class": "pbcr__title"})
+    ime_produktov.append(ime_produkta.text.strip() if ime_produkta else "N/A" )
+
+    ocena = blok.find("span", {"data-testid": "rating-count"})
+    ocene.append(ocenaa.text.strip() if ocena else "N/A")
+
+    opis = blok.find("p")
+    opisi.append(opis.text.strip() if opis else "N/A")
+
+    razpoložljivost = blok.find("p", {"data-testid": "availability-tooltip-text"})
+    razpoložljivosti.append(razpoložljivost.text.strip() if razpoložljivost else "N/A")
+
+    partner = blok.find("b")
+    partnerji.append(partner.text.strip() if partner else "N/A")
+
+    cena = blok.find("span", {"data-sel": "product-box-price"})
+    cene.append(cena.text.strip() if cena else "N/A")
+
+
+
+df = pd.DataFrame({
+    "ID_Produkta": id_produktov,
+    "Ime_Produkta": ime_produktov,
+    "Ocena": ocene,
+    "Opis": opisi,
+    "Razpoložljivost": razpoložljivosti,
+    "Partner": partneji,
+    "Cena": cene
+})
