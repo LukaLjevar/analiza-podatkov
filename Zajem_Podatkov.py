@@ -6,5 +6,5 @@ def zajem_podatkov(n):
         print(f"loop{i+1}")
         print(stran.text)
 
-        with Path(f'C:/Users/luka/Desktop/Projektna UVP/stran{i+1}.html').open(mode='w', encoding='utf-8') as dat:
+        with Path(f'./stran{i+1}.html').open(mode='w', encoding='utf-8') as dat:
             dat.write(stran.text)
