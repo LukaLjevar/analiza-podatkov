@@ -3,7 +3,7 @@ import pandas as pd
 
 pd.set_option( 'display.max_columns', None)
 
-
+# Funkcija, ki odstrani elemente, ki ne vsebujejo besedila v listu.
 def obreži_html_drevo(element):
     for otrok in list(element.children):
         if isinstance(otrok, Tag):
@@ -14,10 +14,12 @@ def obreži_html_drevo(element):
                 obreži_html_drevo(otrok)
 
 
+# Funkcija, ki iz HTML-ja odstrani vizualne elemente.
 def odstrani_vizualne_elemente(juha):
     for element in juha(['script', 'style', 'link', 'meta', 'noscript', 'img']):
         element.decompose()
 
+# Funkcija, ki iz HTML-ja izlušči relevantne dele.
 def izlušči_relevantne_dive(juha):
     return juha.find('div', {'class': 'category-products'})
 
@@ -32,6 +34,7 @@ cene = []
 
 združena_juha = BeautifulSoup('', 'html.parser')
 
+# Funkcija, ki izlušči relevantne dele vsakega HTML-ja.
 def izlušči_grobo(m,n):
     for i in range(m, n):
 
@@ -54,7 +57,7 @@ def izlušči_grobo(m,n):
             print(f"'category_products' div na strani{i} ni bil najden")
 
 
-
+# Funkcija, ki izluščene podatke zapiše v Pandas DataFrame in csv.
 def izlušči_in_zapiši():
     bloki = združena_juha.find_all("div", {"class": "pbcr"})
     for blok in bloki:
@@ -66,7 +69,8 @@ def izlušči_in_zapiši():
         ime_produktov.append(ime_produkta.text.strip() if ime_produkta else "N/A" )
 
         ocena = blok.find("span", {"data-testid": "rating-count"})
-        ocene.append(int(ocena.text.strip().strip("x")) if ocena else "N/A")
+        ocene.append(int(ocena.text.strip().strip("x").strip()) if ocena else "N/A")
+
 
         opis = blok.find("p")
         opisi.append(opis.text.strip() if opis else "N/A")
@@ -94,6 +98,10 @@ def izlušči_in_zapiši():
 
     # Odstranjevanje &nbps
     df.replace("\xa0", ' ', regex=True, inplace=True)
+    # Odstrani stolpec index
     df.drop(df.columns[[0]], axis=1, inplace=True)
+    # Prevtorba stolpca v tip integer
+    df['Število_Ocen'] = df['Število_Ocen'].replace('N/A', '0')
+    df['Število_Ocen'] = df['Število_Ocen'].astype(int)
     # Shrani csv brez &nbps
     df.to_csv("podatki.csv", sep=";")
